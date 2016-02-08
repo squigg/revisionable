@@ -8,6 +8,7 @@ use ReflectionClass;
  */
 class ServiceProvider extends BaseProvider
 {
+
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -24,7 +25,7 @@ class ServiceProvider extends BaseProvider
     {
         $this->publishes([
             $this->guessPackagePath() . '/config/config.php' => config_path('sofa_revisionable.php'),
-            $this->guessPackagePath() . '/migrations/' => base_path('/database/migrations'),
+            $this->guessPackagePath() . '/migrations/'       => base_path('/database/migrations'),
         ]);
     }
 
@@ -134,10 +135,15 @@ class ServiceProvider extends BaseProvider
      */
     protected function bindGuardProvider()
     {
-        $this->app->singleton('revisionable.userprovider', function ($app) {
+        $provider = explode(':', $this->app['config']->get('sofa_revisionable.userprovider'));
+
+        // Default to web guard if none is specified
+        $provider = count($provider) > 1 ? $provider[1] : 'web';
+
+        $this->app->singleton('revisionable.userprovider', function ($app) use ($provider) {
             $field = $app['config']->get('sofa_revisionable.userfield');
 
-            return new \Sofa\Revisionable\Adapters\Guard($app['auth']->createUserProvider('users'), $field);
+            return new \Sofa\Revisionable\Adapters\Guard($app['auth']->guard($provider), $field);
         });
     }
 
@@ -187,6 +193,6 @@ class ServiceProvider extends BaseProvider
     {
         $path = (new ReflectionClass($this))->getFileName();
 
-        return realpath(dirname($path).'/../');
+        return realpath(dirname($path) . '/../');
     }
 }

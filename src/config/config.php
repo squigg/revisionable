@@ -10,12 +10,12 @@ return [
     | By default Laravel generic Illuminate\Auth\Guard.
     |
     | Supported options:
-    |  - illuminate
+    |  - illuminate:guard // Optional guard name, defaults to web
     |  - sentry
     |  - sentinel
     |  - jwt-auth
     */
-    'userprovider' => 'illuminate',
+    'userprovider' => 'illuminate:web',
 
 
     /*
